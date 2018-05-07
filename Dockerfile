@@ -47,9 +47,9 @@ ADD php.ini /etc/php/7.0/apache2
 RUN chmod 644 /etc/php/7.0/apache2/php.ini
 RUN /etc/init.d/apache2 stop
 
-#VOLUME ["/var/www/htdocs/videos", "/var/www/htdocs/encoder/videos"]
+VOLUME ["/var/www/html/YouPHPTube/videos", "/var/www/html/YouPHPTube-Encoder/videos"]
 
 EXPOSE 80/TCP 443/TCP
 
-CMD apachectl -D FOREGROUND
+CMD apachectl -e info -DFOREGROUND
 
