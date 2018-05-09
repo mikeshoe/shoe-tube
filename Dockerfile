@@ -11,19 +11,26 @@ RUN apt-get install -y vim apache2 php7.0 libapache2-mod-php7.0 php7.0-mysql php
 
 WORKDIR /var/www/html
 
-RUN git clone https://github.com/DanielnetoDotCom/YouPHPTube.git /var/www/html/YouPHPTube 
-RUN mkdir /var/www/html/YouPHPTube/videos
-RUN chmod 777 /var/www/html/YouPHPTube/videos
+#remove pid or container won't start
+#RUN rm /run/apache2/apache2.pid
 
-RUN git clone https://github.com/DanielnetoDotCom/YouPHPTube-Encoder.git /var/www/html/YouPHPTube-Encoder
-RUN mkdir /var/www/html/YouPHPTube-Encoder/videos
-RUN chmod 777 /var/www/html/YouPHPTube-Encoder/videos
+#remove default index page
+RUN rm /var/www/html/index.html
 
-#necessary?  RUN chown -R root:root /var/www
+RUN git clone https://github.com/DanielnetoDotCom/YouPHPTube.git /var/www/html/ 
+RUN mkdir /var/www/html/videos
+RUN chmod 777 /var/www/html/videos
+
+RUN git clone https://github.com/DanielnetoDotCom/YouPHPTube-Encoder.git /var/www/html/encoder
+RUN mkdir /var/www/html/encoder/videos
+RUN chmod 777 /var/www/html/encoder/videos
 
 RUN curl -L https://yt-dl.org/downloads/latest/youtube-dl -o /usr/local/bin/youtube-dl
 
 RUN chmod a+rx /usr/local/bin/youtube-dl 
+
+ADD entrypoint.sh /usr/local/bin
+RUN chmod a+rx /usr/local/bin/entrypoint.sh
 
 #edit apache2.conf
 #     /var/www
@@ -45,11 +52,7 @@ RUN a2enmod rewrite
 RUN mv /etc/php/7.0/apache2/php.ini /etc/php/7.0/apache2/php.ini.bak
 ADD php.ini /etc/php/7.0/apache2
 RUN chmod 644 /etc/php/7.0/apache2/php.ini
-RUN /etc/init.d/apache2 stop
-
-VOLUME ["/var/www/html/YouPHPTube/videos", "/var/www/html/YouPHPTube-Encoder/videos"]
 
 EXPOSE 80/TCP 443/TCP
 
-CMD apachectl -e info -DFOREGROUND
-
+CMD ["entrypoint.sh"]
